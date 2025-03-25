@@ -22,7 +22,7 @@ spring:
             - Path=/api/v1/inventory/**
           filters:
             - StripPrefix=2
-            - AddRequestHeader=X-Custom-Header, Anuj
+            - AddRequestHeader=X-Custom-Header, Hama
 eureka:
   client:
     service-url:
