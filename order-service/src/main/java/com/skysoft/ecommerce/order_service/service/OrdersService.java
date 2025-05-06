@@ -6,9 +6,11 @@ import com.skysoft.ecommerce.order_service.entity.OrderItem;
 import com.skysoft.ecommerce.order_service.entity.OrderStatus;
 import com.skysoft.ecommerce.order_service.entity.Orders;
 import com.skysoft.ecommerce.order_service.repoitory.OrdersRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -37,9 +39,11 @@ public class OrdersService {
         return modelMapper.map(order, OrderRequestDto.class);
     }
 
-//    @Retry(name = "inventoryRetry", fallbackMethod = "createOrderFallback")
+    @Retry(name = "inventoryRetry", fallbackMethod = "createOrderFallback")
     @CircuitBreaker(name = "inventoryCircuitBreaker", fallbackMethod = "createOrderFallback")
     @RateLimiter(name = "inventoryRateLimiter", fallbackMethod = "createOrderFallback")
+    @Bulkhead(name = "inventoryBulkhead",fallbackMethod ="createOrderFallback" )
+    @TimeLimiter(name ="inventoryTimeLimiter",fallbackMethod = "createOrderFallback" )
     public OrderRequestDto createOrder(OrderRequestDto orderRequestDto) {
         log.info("Calling the createOrder method");
         Double totalPrice = inventoryOpenFeignClient.reduceStocks(orderRequestDto);

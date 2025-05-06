@@ -15,16 +15,16 @@ resilience4j:
     configs:
       default:
         maxRetryAttempts: 3
-        waitDuration: 20s
-#    instances:
-#      inventoryRetry:
-#        baseConfig: default
-#        waitDuration: 200ms
+        waitDuration: 5s
+    instances:
+      inventoryRetry:
+        baseConfig: default
+        waitDuration: 200ms
   ratelimiter:
     instances:
       inventoryRateLimiter:
-        limitRefreshPeriod: 5s
         limitForPeriod: 1
+        limitRefreshPeriod: 5s
         timeoutDuration: 1s
   circuitbreaker:
     instances:
@@ -37,3 +37,16 @@ resilience4j:
         waitDurationInOpenState: 1s   # Time the circuit stays OPEN before moving to HALF_OPEN
         permittedNumberOfCallsInHalfOpenState: 3  # Number of test calls in HALF_OPEN state
         eventConsumerBufferSize: 10    # Buffer size for event logs
+resilience4j.bulkhead:
+  instances:
+    myBulkhead:
+      maxConcurrentCalls: 10          # Limit to 10 concurrent calls
+      maxWaitDuration: 500ms          # Maximum time to wait for a slot when limit is reached
+      queueCapacity: 20
+
+resilience4j.timelimiter:
+  instances:
+    myTimeLimiter:
+      timeoutDuration: 2000ms        # Set timeout to 2 seconds
+      cancelRunningFuture: true      # Cancel any ongoing operations if the timeout is exceeded
+
